@@ -1,0 +1,89 @@
+<?php
+session_start();
+
+
+// Attempts to connect to mysql data base
+require_once "connection.php";
+
+// Try to add user data via POST to db.
+try {
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // If both fields were filled then we try login
+        // $_POST['Email'] refers to ether the email or username
+        if (isset($_POST['Email']) && isset($_POST['Password'])) {
+            // String to check if record exist with passed information
+            // Note: The usage of 1 here prevents usage of data, replace
+            // with * if access to the record is needed
+            $sql = "SELECT * FROM users WHERE (username=:Email OR email=:Email ) AND password=:Password";
+
+            // This prepare statement escapes/sanitizes user entered data
+            $statements = $connection->prepare($sql);
+            // If this point is reached then passed data is 'safe' and command occurs
+            $statements->execute(array(
+                ':Email' => $_POST['Email'],
+                ':Password' => $_POST['Password'] 
+            ));
+            
+            $result = $statements;
+            
+            //if not found
+            if (!((bool)$statements->fetchColumn())) {
+                $_SESSION["error"] = "Incorrect password.";
+               header('Location: http://localhost/2ndCrab/'); 
+               print_r($statements);
+               print_r($statements);
+                return;
+            }
+
+            $data = $result->fetch();
+           
+            if (empty($data)) {
+                $_SESSION["error"] = "dokwadoikawdop";
+                echo "hokpoko";
+                var_dump($);
+               /*  header('Location: http://localhost/2ndCrab/');
+                return; */
+            }
+
+            $userIds = $data['user_id'];
+
+
+            $sql = "SELECT * FROM counters WHERE ( user_id =:userid)";
+
+            // This prepare statement escapes/sanitizes user entered data
+            $statements = $connection->prepare($sql);
+            // If this point is reached then passed data is 'safe' and command occurs
+            $statements->execute(array(
+                ':userid' => $userIds,
+            ));
+
+
+            // if (!((bool)$statements->fetchColumn())) {
+            //     $_SESSION["error"] = "no game data found.";
+            //     header('Location: http://localhost/2ndCrab/');
+            //     return;
+            // }
+
+            $result = $statements->fetch(PDO::FETCH_ASSOC);
+            
+            $_SESSION["crabs"] = $result['crabs'];
+            $_SESSION["firstItem"] = $result['firstItem'];
+            $_SESSION["secondItem"] = $result['secondItem'];
+            $_SESSION["thirdItem"] = $result['thirdItem'];
+            $_SESSION["fourthItem"] = $result['fourthItem'];
+            $_SESSION["fithItem"] = $result['fithItem'];
+
+
+            $_SESSION["account"] = $_POST['Email'];
+            $_SESSION["success"] = "Logged in.";
+            header('Location: http://localhost/2ndCrab/3rdCrab/index2.php');
+            return;
+        }
+    }
+} catch (Exception $e) {
+
+    $_SESSION["error"] = "error caught";
+    
+    header('Location: http://localhost/2ndCrab/');
+    return;
+}

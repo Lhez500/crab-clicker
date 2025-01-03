@@ -1,0 +1,27 @@
+
+
+CREATE DATABASE IF NOT EXISTS `Accounts` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+USE `Accounts`;
+
+CREATE TABLE IF NOT EXISTS `Users` (
+  `user_id` int(11) NOT NULL AUTO_INCREMENT KEY,  -- primary key
+  `email` varchar(100) NOT NULL,    -- logical key
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  INDEX USING BTREE (email)
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `Counters` (
+  `counter_id` int(11) NOT NULL AUTO_INCREMENT KEY, -- primary key
+  `crabs` int(15) NOT NULL,
+  `firstItem` int(10) NOT NULL,
+  `secondItem` int(10) NOT NULL,
+  `thirdItem` int(10) NOT NULL,
+  `fourthItem` int(10) NOT NULL,
+  `fithItem` int(10) NOT NULL,
+  `user_id` int(11),
+  CONSTRAINT FOREIGN KEY (user_id) 
+    REFERENCES USERS (user_id) 
+    ON DELETE CASCADE 
+    ON UPDATE CASCADE
+) ENGINE=InnoDB;
